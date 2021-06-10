@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VR con A-Frame</title>
+
+    <!-- Incluir este script al pricipio para obtener A-Frame a través de CDN -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  </head>
+  <body>
+    <!--
+        a-scene es la etiqueta para la escena.
+        La escena es el contenedor principal de todo lo que queremos
+        que se incluya en nuestro escenario: modelos, figuras, audio, etc. 
+    -->
+    <a-scene>
+      <!--
+            En a-assets se cargan los assets o recursos que necesitamos para
+            la escena, como modelos, texturas, etc.
+
+            Es conveniente identificar cada asset con un id
+        -->
+      <a-assets>
+        <!-- Los assets como imágenes de textura se cargan la etiqueta img -->
+        <img src="/assets/img/skydome.jpg" id="skydome" />
+        <img src="/assets/img/sand-base.jpg" id="sand-base" />
+        <img src="/assets/img/sand-normal.jpg" id="sand-normal" />
+        <img src="/assets/img/sand-ao.jpg" id="sand-ao" />
+        <img src="/assets/img/wood-base.png" id="wood-base" />
+        <img src="/assets/img/wood-normal.png" id="wood-normal" />
+        <!-- Los assets como modelos se cargan con la etiqueta a-asset-item -->
+        <a-asset-item
+          src="/assets/models/coconut-tree/scene.gltf"
+          id="tree"
+        ></a-asset-item>
+        <!-- Los assets de sonido se cargan con la etiqueta audio -->
+        <audio src="/assets/sounds/waves-sounds.wav" id="waves"></audio>
+      </a-assets>
+
+      <!--
+          Creamos un cielo de fondo para la escena.
+          
+          El atributo src permite asignarle una textura al cielo.
+          
+          En este caso se especifica el id de una textura previamente
+          cargada en a-assets
+      -->
+      <a-sky src="#skydome"></a-sky>
+
+      <!--
+          Se utiliza un plano como suelo para la escena.
+          
+          Con src especificamos qué textura cargar como el color base.
+          
+          Con repeat especificamos cuántas veces queremos que se
+          repita la textura a lo ancho y a lo largo, para que la
+          textura no sea vea muy estirada
+          
+          Con width y height le damos medidas al plano
+          
+          Con rotation hacemos una rotación de -90 grados en el eje x,
+          pues el plano por defecto es vertical y nosotros lo queremos
+          horizontal paralelo al suelo
+
+          Con normal-map cargamos una textura de normales. Esta textura
+          afecta cómo actúa la iluminación sobre el plano, dándole realismo
+          e ilusión de detalle
+
+          Con normal-texture-repeat, hacemos lo mismo que con repeat pero
+          con la textura de normales, para que se ajuste a la textura de
+          color base
+
+          Con ambient-occlusion-map, asignamos al plano una textura de
+          oclusión ambiental. Esta textura mejora los efectos de sombreado
+          generados por la iluminación
+
+          Igualmente, ambient-occlusion-texture-repeat repite la textura
+          para que se ajuste a las demás texturas del plano
+
+          Con roughness se ajusta qué tan reflectivo es el plano, es un valor
+          entre 0.0 y 1.0. Entre más se acerca a cero, más reflectivo es y viceversa
+
+          El atributo shadow permite configurar las sombras de este objeto.
+          En este caso, a receive se le asigna true para indicar que este
+          objeto recibe las sombras de los objetos que las generan
+      -->
+      <a-plane
+        src="#sand-base"
+        repeat="7 7"
+        width="50"
+        height="50"
+        rotation="-90 0 0"
+        normal-map="#sand-normal"
+        normal-texture-repeat="7 7"
+        ambient-occlusion-map="#sand-ao"
+        ambient-occlusion-texture-repeat="7 7"
+        roughness="0.7"
+        shadow="receive: true"
+      ></a-plane>
+
+      <!--
+          Podemos crear geometría directamente usando primitivos
+
+          Los primitivos son figuras geométricas básicas como
+          cajas, esferas, conos, etc.
+
+          Podemos aplicarle un color o una textura con src
+
+          Con width, height y depth controlamos las medidas de la caja
+
+          El atributo shadow permite configurar las sombras de este objeto.
+          En este caso, a cast se le asigna true para indicar que este
+          objeto genera una sombra
+      -->
+      <a-box
+        src="#wood-base"
+        normal-map="#wood-normal"
+        width="1.5"
+        height="1"
+        depth="0.2"
+        position="0 2 -2"
+        shadow="cast: true"
+      >
+        <!--
+            Podemos generar jerarquias de objetos simplemente
+            colocándolos dentro de la etiqueta de otro objeto
+
+            Los objetos interiores pasan a ser "hijos" del objeto
+            exterior y ahora sus coordenadas son relativas al
+            objeto "padre"
+        -->
+        <a-box
+          src="#wood-base"
+          normal-map="#wood-normal"
+          width="0.1"
+          height="2"
+          depth="0.1"
+          position="0 -1 0"
+        ></a-box>
+
+        <!--
+            Podemos crear textos con la etiqueta a-text y asignarle
+            un valor, que es el texto a mostrar, un color de fuente,
+            alineación de texto, posición, escala, etc.
+        -->
+        <a-text
+          value="¡Bienvenidos a mi playa secreta!"
+          color="#222"
+          align="center"
+          position="0 1 0"
+          scale="1.5 1.5 1.5"
+        ></a-text>
+      </a-box>
+
+      <!--
+          Para agregar un modelo, agregamos una entidad con a-entity
+          y como atributo gltf-model le asignamos el id de un modelo
+          precargado en a-assets.
+
+          A-Frame recomienda usar el formato gltf para modelos 3D
+
+          Con position y scale podemos controlar su posición y escala
+          respectivamente
+      -->
+      <a-entity
+        gltf-model="#tree"
+        position="5 0 5"
+        scale="3 3 3"
+        shadow="cast: true"
+      ></a-entity>
+
+      <!--
+          Para agregar un sonido de fondo, utilizamos la etiqueta a-sound
+          
+          El atributo src indica la fuente del sonido
+
+          El atributo autoplay le asignamos true para que se reproduzca de
+          manera automática
+
+          El atributo loop le asignamos true para que se reproduzca en ciclo
+      -->
+      <a-sound src="#waves" autoplay="true" loop="true"></a-sound>
+
+      <!--
+          Podemos agregar luces con la etiqueta a-light y configurar su
+          color, su tipo y su intensidad, entre otras cosas
+
+          En este caso, la luz ambiental es una luz que afecta de igual
+          forma desde todas las direcciones
+      -->
+      <a-light color="#EEE" type="ambient" intensity="0.8"></a-light>
+
+      <!--
+          También podemos crear luces agregando una entidad y asignándole
+          un componente de light, al cual le podemos dar algunos atributos
+
+          En este caso el tipo de luz es direccional, y simula la luz del Sol.
+          Por lo que se necesita asignarle una posición
+
+          Este método de agregar luces nos permite configurar otras opciones
+          como las sombras
+
+          Los atributos shadowCamera* configuran la cámara que captura los
+          objetos y genera las sombras
+      -->
+      <a-entity
+        light="color: #EEE;
+            type: directional;
+            intensity: 0.7;
+            castShadow: true;
+            shadowCameraBottom: -20;
+            shadowCameraTop: 20;
+            shadowCameraLeft: -35;
+            shadowCameraRight: 35;
+            shadowCameraFar: 70;"
+        position="-25 25 -25"
+      ></a-entity>
+    </a-scene>
+  </body>
+</html>
